@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menù - La Tavola Perfetta</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+        }
+        .header {
+            background-color: #343a40;
+            padding: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .menu-section {
+            margin-bottom: 50px;
+        }
+        .menu-item {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fff;
+            text-align: center;
+        }
+        .menu-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .menu-item h4 {
+            margin: 10px 0 5px;
+            font-size: 1.5rem;
+        }
+        .menu-item p {
+            margin: 0;
+            color: #555;
+        }
+        .menu-item .edit-btn, .menu-item .delete-btn {
+            margin-right: 10px;
+        }
+        .add-item-btn, .add-section-btn {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            margin-bottom: 30px;
+            color: #343a40;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header class="header text-white mb-3">
+        <div class="container text-center">
+            <h1 class="display-4">Il Nostro Menù</h1>
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="prenotazione.html">Prenotazione</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link text-dark" href="menu.html">Menù</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="contatti.html">Contatti</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <section id="menu">
+            <button id="add-section-btn" class="btn btn-primary add-section-btn">Aggiungi Sezione</button>
+            <div id="menu-sections">
+                <!-- Sezioni dinamicamente aggiunte qui -->
+            </div>
+        </section>
+        <button id="save-page-btn" class="btn btn-success mt-4">Salva Pagina</button></br></br>
+        <button id="add-section-btn" class="btn btn-primary add-section-btn"><a href="./creazionemappa.html" style="color: white; text-decoration: none;">Procedi alla creazione della mappa del Ristorante</a></button>
+    </main>
+    <footer class="bg-dark text-white text-center p-3">
+        <div class="container">
+            <p>&copy; 2024 La Tavola Perfetta. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <!-- Modal per l'inserimento e modifica dei piatti -->
+    <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalLabel">Aggiungi/Modifica Piatto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="itemForm">
+                        <div class="form-group">
+                            <label for="item-name">Nome del Piatto</label>
+                            <input type="text" class="form-control" id="item-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-description">Descrizione</label>
+                            <textarea class="form-control" id="item-description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-image">Immagine del Piatto</label>
+                            <input type="file" class="form-control-file" id="item-image" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salva</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal per l'inserimento del nome della sezione -->
+    <div class="modal fade" id="sectionModal" tabindex="-1" role="dialog" aria-labelledby="sectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sectionModalLabel">Aggiungi Sezione</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="sectionForm">
+                        <div class="form-group">
+                            <label for="section-name">Nome della Sezione</label>
+                            <input type="text" class="form-control" id="section-name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Aggiungi Sezione</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let editingItem = null;
+            let currentSection = null;
+
+            // Apre la modale per aggiungere una nuova sezione
+            $('#add-section-btn').click(function() {
+                $('#section-name').val('');
+                $('#sectionModal').modal('show');
+            });
+
+            // Gestisce il form di aggiunta sezione
+            $('#sectionForm').submit(function(e) {
+                e.preventDefault();
+                const sectionName = $('#section-name').val();
+                addSection(sectionName);
+                $('#sectionModal').modal('hide');
+            });
+
+            // Funzione per aggiungere una sezione
+            function addSection(name) {
+                const sectionId = 'section-' + name.toLowerCase().replace(/\s+/g, '-');
+                const section = `
+                    <div class="menu-section" id="${sectionId}">
+                        <h2 class="section-title text-dark">${name}</h2>
+                        <button class="btn btn-success add-item-btn" data-section-id="${sectionId}">Aggiungi Piatto</button>
+                        <div class="row" id="${sectionId}-items">
+                            <!-- Piatti aggiunti dinamicamente qui -->
+                        </div>
+                    </div>
+                `;
+                $('#menu-sections').append(section);
+            }
+
+            // Apre la modale per aggiungere un piatto
+            $(document).on('click', '.add-item-btn', function() {
+                currentSection = $(this).data('section-id');
+                editingItem = null;
+                $('#item-name').val('');
+                $('#item-description').val('');
+                $('#item-image').val('');
+                $('#itemModal').modal('show');
+            });
+
+            // Gestisce il form di aggiunta/modifica piatto
+            $('#itemForm').submit(function(e) {
+                e.preventDefault();
+                const itemName = $('#item-name').val();
+                const itemDescription = $('#item-description').val();
+                const itemImageFile = $('#item-image')[0].files[0];
+                let itemImageUrl = '';
+
+                if (itemImageFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        itemImageUrl = e.target.result;
+
+                        if (editingItem) {
+                            updateItem(editingItem, itemName, itemDescription, itemImageUrl);
+                        } else {
+                            addItem(itemName, itemDescription, itemImageUrl, currentSection);
+                        }
+                        $('#itemModal').modal('hide');
+                    };
+                    reader.readAsDataURL(itemImageFile);
+                } else {
+                    if (editingItem) {
+                        updateItem(editingItem, itemName, itemDescription);
+                    } else {
+                        addItem(itemName, itemDescription, '', currentSection);
+                    }
+                    $('#itemModal').modal('hide');
+                }
+            });
+
+            // Funzione per aggiungere un piatto
+            function addItem(name, description, imageUrl = '', sectionId) {
+                const newItem = `
+                    <div class="col-md-4 menu-item">
+                        ${imageUrl ? `<img src="${imageUrl}" class="img-fluid" alt="${name}">` : ''}
+                        <h4 class="text-dark mt-2">${name}</h4>
+                        <p class="text-dark">${description}</p>
+                        <button class="btn btn-warning edit-btn">Modifica</button>
+                        <button class="btn btn-danger delete-btn">Elimina</button>
+                    </div>
+                `;
+                $(`#${sectionId}-items`).append(newItem);
+            }
+
+            // Apre la modale per modificare un piatto
+            $(document).on('click', '.edit-btn', function() {
+                editingItem = $(this).closest('.menu-item');
+                const itemName = editingItem.find('h4').text();
+                const itemDescription = editingItem.find('p').text();
+                const itemImage = editingItem.find('img').attr('src') || '';
+
+                $('#item-name').val(itemName);
+                $('#item-description').val(itemDescription);
+                $('#item-image').val('');
+
+                $('#itemModal').modal('show');
+            });
+
+            // Funzione per aggiornare un piatto esistente
+            function updateItem(item, name, description, imageUrl = '') {
+                item.find('h4').text(name);
+                item.find('p').text(description);
+                if (imageUrl) {
+                    if (item.find('img').length > 0) {
+                        item.find('img').attr('src', imageUrl);
+                    } else {
+                        item.prepend(`<img src="${imageUrl}" class="img-fluid" alt="${name}">`);
+                    }
+                }
+            }
+
+            // Funzione per eliminare un piatto
+            $(document).on('click', '.delete-btn', function() {
+                if (confirm('Sei sicuro di voler eliminare questo piatto?')) {
+                    $(this).closest('.menu-item').remove();
+                }
+            });
+
+            // Funzione per salvare la pagina
+            $('#save-page-btn').click(function() {
+                // Clona l'elemento del menu per manipolare il DOM senza alterare la visualizzazione attuale
+                const $menuClone = $('#menu').clone();
+
+                // Rimuove i pulsanti di aggiunta/modifica/eliminazione dalla copia
+                $menuClone.find('.add-section-btn, .add-item-btn, .edit-btn, .delete-btn').remove();
+
+                // Prepara i dati da inviare al server
+                const data = {
+                    menu_sections: []
+                };
+
+                // Per ogni sezione nel menù, raccoglie le informazioni necessarie
+                $menuClone.find('.menu-section').each(function() {
+                    const sectionName = $(this).find('.section-title').text();
+                    const sectionItems = [];
+
+                    $(this).find('.menu-item').each(function() {
+                        const itemName = $(this).find('h4').text();
+                        const itemDescription = $(this).find('p').text();
+                        const itemImage = $(this).find('img').attr('src');
+
+                        // Se l'immagine è presente, controlla che non sia vuota
+                        let base64Image = '';
+                        if (itemImage && itemImage.startsWith('data:image')) {
+                            base64Image = itemImage.split(',')[1];
+                        }
+
+                        sectionItems.push({
+                            name: itemName,
+                            description: itemDescription,
+                            image: base64Image
+                        });
+                    });
+
+                    data.menu_sections.push({
+                        name: sectionName,
+                        items: sectionItems
+                    });
+                });
+
+                // Verifica dei dati
+                if (data.menu_sections.length === 0) {
+                    alert('Non ci sono sezioni da salvare.');
+                    return;
+                }
+
+                console.log("Dati inviati al server:", data); // Log dei dati
+
+                // Invia i dati al server Flask
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/save_menu',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Pagina salvata con successo! Puoi scaricare il file qui: ' + response.file_path);
+                        } else {
+                            alert('Errore nel salvataggio della pagina.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Errore nella richiesta AJAX:", xhr.responseText);
+                        alert('Si è verificato un errore durante la richiesta.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

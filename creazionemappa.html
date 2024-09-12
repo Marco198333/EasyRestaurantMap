@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Mappa Ristorante</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .map-container {
+            position: relative;
+            width: 85vw;
+            height: 85vh;
+            background-color: #e0cda9;
+            border: 2px solid #000;
+            box-sizing: border-box;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .element {
+            position: absolute;
+            text-align: center;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid #343a40;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            resize: both;
+            overflow: hidden;
+            cursor: move;
+        }
+
+        .drag-handle {
+            width: 100%;
+            height: 100%;
+            cursor: move;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .selected {
+            border-color: red;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        .restaurant-hall {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .map-ele {
+            background-color: #4CAF50;
+            border-radius: 5px;
+            line-height: 60px;
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-panel button {
+            position: relative;
+        }
+
+        .info-icon {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            cursor: pointer;
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .info-popup {
+            display: none;
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            z-index: 1100;
+        }
+
+        .info-popup p {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .info-popup .close-popup {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .icon-container {
+            font-size: 30px;
+            color: #343a40;
+            cursor: move;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .popup-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 2001;
+        }
+
+        .popup-content h3 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .icon-grid i {
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .icon-grid i:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Popup per inserire numero del tavolo e posti -->
+    <div class="popup-overlay" id="description-popup">
+        <div class="popup-content">
+            <h3>Inserisci Dettagli Tavolo</h3>
+            <label for="table-number">Numero del Tavolo:</label>
+            <input type="number" id="table-number" class="form-control" placeholder="Inserisci numero tavolo">
+            <label for="table-seats" class="mt-2">Numero di Posti:</label>
+            <input type="number" id="table-seats" class="form-control" placeholder="Inserisci posti disponibili">
+            <button id="save-description-btn" class="btn btn-success mt-2">Salva</button>
+        </div>
+    </div>
+
+    <!-- Popup per inserimento tavoli multipli -->
+    <div class="popup-overlay" id="table-popup">
+        <div class="popup-content">
+            <h3>Inserisci Tavoli Multipli</h3>
+            <label for="table-count">Numero di Tavoli:</label>
+            <input type="number" id="table-count" min="1" value="1">
+            <button id="add-tables-btn" class="btn btn-success mt-2">Aggiungi</button>
+        </div>
+    </div>
+
+    <!-- Popup per la selezione delle icone -->
+    <div class="popup-overlay" id="icon-popup">
+        <div class="popup-content">
+            <span class="close-popup">&times;</span>
+            <h3>Seleziona un'Icona</h3>
+            <div class="icon-grid">
+                <i class="fas fa-utensils"></i>
+                <i class="fas fa-concierge-bell"></i>
+                <i class="fas fa-wine-glass-alt"></i>
+                <i class="fas fa-seedling"></i>
+                <i class="fas fa-door-open"></i>
+                <i class="fas fa-chair"></i>
+                <i class="fas fa-toilet"></i>
+                <i class="fas fa-shower"></i>
+                <i class="fas fa-sink"></i>
+                <i class="fas fa-tree"></i>
+                <i class="fas fa-fire-extinguisher"></i>
+                <i class="fas fa-broom"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup per l'errore della sala mancante -->
+    <div class="popup-overlay" id="error-popup">
+        <div class="popup-content">
+            <h3>Errore</h3>
+            <p>Devi prima creare e selezionare una sala prima di aggiungere tavoli!</p>
+            <button class="btn btn-primary" id="close-error-popup">Ok</button>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <button id="add-hall" class="btn btn-success">Aggiungi Sala</button>
+        <!--<button id="add-table" class="btn btn-success">Aggiungi Tavolo</button>-->
+        <button id="add-multiple-tables" class="btn btn-success">Aggiungi Tavoli</button>
+        <!-- <button id="add-text" class="btn btn-success">Aggiungi Testo</button> -->
+        <!-- <button id="add-icon" class="btn btn-success">Aggiungi Icona</button> -->
+        <button id="remove-element" class="btn btn-danger">Rimuovi Elemento Selezionato</button>
+        <button id="clear-map" class="btn btn-danger">Svuota Mappa</button>
+        <button id="save-map" class="btn btn-primary">Salva Mappa</button>
+        <!-- <button id="load-map" class="btn btn-secondary">Carica Mappa</button> -->
+    </div>
+
+    <div class="map-container" id="map-container">
+        <div id="map-elements">
+            <!-- Elementi dinamici aggiunti qui -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script>
+        let elementId = 1;
+        let selectedElement = null;
+        const tableData = {};  // Oggetto per salvare i dati dei tavoli
+
+        // Funzione per mostrare il popup di errore
+        function showErrorPopup(message) {
+            const errorPopup = document.getElementById('error-popup');
+            errorPopup.querySelector('p').innerText = message;
+            errorPopup.style.display = 'block';
+        }
+
+        // Doppio click per modificare il tavolo e inserire descrizione
+        function enableTextEditing(element) {
+            element.addEventListener('dblclick', function(e) {
+                // Mostra il popup di descrizione
+                const descriptionPopup = document.getElementById('description-popup');
+                descriptionPopup.style.display = 'block';
+
+                // Riferimenti agli input del popup
+                const numberInput = document.getElementById('table-number');
+                const seatsInput = document.getElementById('table-seats');
+
+                // Precarica i valori dall'oggetto tableData se già esistenti
+                const id = element.getAttribute('id');
+                if (tableData[id]) {
+                    numberInput.value = tableData[id].tableNumber || '';
+                    seatsInput.value = tableData[id].tableSeats || '';
+                } else {
+                    numberInput.value = '';
+                    seatsInput.value = '';
+                }
+
+                // Quando si preme "Salva" nel popup
+                document.getElementById('save-description-btn').onclick = function() {
+                    // Salva i dati nel nostro oggetto tableData
+                    tableData[id] = {
+                        tableNumber: numberInput.value,
+                        tableSeats: seatsInput.value
+                    };
+
+                    // Aggiungi i dati direttamente nel DOM come data-attribute
+                    const dragHandle = element.querySelector('.drag-handle');
+                    dragHandle.setAttribute('data-table-number', numberInput.value);
+                    dragHandle.setAttribute('data-table-seats', seatsInput.value);
+
+                    // Nascondi il popup dopo il salvataggio
+                    descriptionPopup.style.display = 'none';
+                };
+            });
+        }
+
+        document.getElementById('close-error-popup').addEventListener('click', function() {
+            document.getElementById('error-popup').style.display = 'none';
+        });
+
+        document.getElementById('add-hall').addEventListener('click', function() {
+            createElement('restaurant-hall', 'Sala', '400px', '200px');
+        });
+
+        //document.getElementById('add-table').addEventListener('click', function() {
+            //if (!selectedElement || !selectedElement.classList.contains('restaurant-hall')) {
+                //showErrorPopup("Devi prima creare e selezionare una sala prima di aggiungere tavoli!");
+                //return;
+            //}
+            //createElement('map-ele', '', '80px', '60px');
+        //});
+
+        document.getElementById('add-multiple-tables').addEventListener('click', function() {
+            if (!selectedElement || !selectedElement.classList.contains('restaurant-hall')) {
+                showErrorPopup("Devi prima creare e selezionare una sala prima di aggiungere tavoli!");
+                return;
+            }
+            document.getElementById('table-popup').style.display = 'block';
+        });
+
+        document.getElementById('add-tables-btn').addEventListener('click', function() {
+            const tableCount = document.getElementById('table-count').value;
+            if (tableCount > 0) {
+                addMultipleTables(parseInt(tableCount));
+            }
+            document.getElementById('table-popup').style.display = 'none';
+        });
+
+        //document.getElementById('add-text').addEventListener('click', function() {
+            //createElement('text-block', 'Testo Personalizzato ' + elementId, '200px', '50px');
+        //});
+
+        //document.getElementById('add-icon').addEventListener('click', function() {
+            //document.getElementById('icon-popup').style.display = 'block';
+        //});
+
+        document.querySelector('.close-popup').addEventListener('click', function() {
+            document.getElementById('icon-popup').style.display = 'none';
+        });
+
+        document.querySelectorAll('.icon-grid i').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const iconClass = this.className;
+                createIcon(iconClass);
+                document.getElementById('icon-popup').style.display = 'none';
+            });
+        });
+
+        document.getElementById('remove-element').addEventListener('click', function() {
+            if (selectedElement) {
+                selectedElement.remove();
+                delete tableData[selectedElement.id];  // Rimuovi i dati collegati
+                selectedElement = null;
+            } else {
+                alert('Nessun elemento selezionato.');
+            }
+        });
+
+        document.getElementById('clear-map').addEventListener('click', function() {
+    if (confirm('Sei sicuro di voler svuotare la mappa?')) {
+        document.getElementById('map-elements').innerHTML = '';
+        selectedElement = null;
+        elementId = 1;
+        Object.keys(tableData).forEach(key => delete tableData[key]);  // Svuota anche i dati dei tavoli
+    }
+});
+
+function createElement(className, innerHTML, width, height) {
+    const map = document.getElementById('map-elements');
+    const element = document.createElement('div');
+    element.classList.add('element', className);
+    element.style.left = '50px';
+    element.style.top = '50px';
+    element.style.width = width;
+    element.style.height = height;
+    element.innerHTML = className === 'map-ele' ? `<div class="drag-handle"></div>` : innerHTML;
+    element.setAttribute('id', `${className}_${elementId}`);
+    map.appendChild(element);
+
+
+            enableInteract(element);
+            if (className === 'map-ele') {
+                enableTextEditing(element); // Abilita doppio click sui tavoli
+            }
+            elementId++;
+        }
+
+        function addMultipleTables(count) {
+            const container = selectedElement;
+            const containerRect = container.getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            const containerHeight = containerRect.height;
+
+            const cols = Math.ceil(Math.sqrt(count));
+            const rows = Math.ceil(count / cols);
+
+            let tableWidth = containerWidth / cols - 10;
+            let tableHeight = containerHeight / rows - 10;
+
+            tableWidth = Math.min(tableWidth, 80);
+            tableHeight = Math.min(tableHeight, 60);
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    if (count <= 0) return;
+
+                    const left = col * (tableWidth + 10) + 10;
+                    const top = row * (tableHeight + 10) + 10;
+
+                    const element = document.createElement('div');
+                    element.classList.add('element', 'map-ele');
+                    element.style.left = `${left}px`;
+                    element.style.top = `${top}px`;
+                    element.style.width = `${tableWidth}px`;
+                    element.style.height = `${tableHeight}px`;
+                    element.innerHTML = `<div class="drag-handle"></div>`;
+                    element.setAttribute('id', `map-ele_${elementId}`);
+                    container.appendChild(element);
+
+                    enableInteract(element);
+                    enableTextEditing(element); // Abilita doppio click per aggiungere descrizione
+                    elementId++;
+                    count--;
+                }
+            }
+        }
+
+        function createIcon(iconClass) {
+            const map = document.getElementById('map-elements');
+            const element = document.createElement('div');
+            element.classList.add('icon-container', 'element');
+            element.innerHTML = `<i class="${iconClass}"></i>`;
+            element.style.left = '50px';
+            element.style.top = '50px';
+            element.setAttribute('id', `icon_${elementId}`);
+            map.appendChild(element);
+
+            enableInteract(element);
+            elementId++;
+        }
+
+        function enableInteract(element) {
+            interact(element)
+                .draggable({
+                    listeners: {
+                        start(event) {
+                            const target = event.target;
+
+                            // Assicurati che le coordinate siano inizializzate
+                            target.dataset.x = target.dataset.x || 0;
+                            target.dataset.y = target.dataset.y || 0;
+                        },
+                        move(event) {
+                            const target = event.target;
+
+                            // Ottieni le posizioni attuali
+                            const x = (parseFloat(target.dataset.x) || 0) + event.dx;
+                            const y = (parseFloat(target.dataset.y) || 0) + event.dy;
+
+                            // Aggiorna le posizioni
+                            target.style.transform = `translate(${x}px, ${y}px)`;
+
+                            // Salva le nuove posizioni nei dataset
+                            target.dataset.x = x;
+                            target.dataset.y = y;
+                        }
+                    }
+                })
+                .resizable({
+                    edges: { left: true, right: true, bottom: true, top: true },
+                    listeners: {
+                        move(event) {
+                            const target = event.target;
+                            
+                            // Aggiorna le dimensioni
+                            target.style.width = `${event.rect.width}px`;
+                            target.style.height = `${event.rect.height}px`;
+
+                            // Mantieni la posizione durante il ridimensionamento
+                            const x = (parseFloat(target.dataset.x) || 0) + event.deltaRect.left;
+                            const y = (parseFloat(target.dataset.y) || 0) + event.deltaRect.top;
+
+                            target.style.transform = `translate(${x}px, ${y}px)`;
+
+                            // Salva le nuove posizioni nei dataset
+                            target.dataset.x = x;
+                            target.dataset.y = y;
+                        }
+                    }
+                });
+
+            element.addEventListener('click', function(e) {
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                }
+                selectedElement = e.target.closest('.element');
+                selectedElement.classList.add('selected');
+            });
+        }
+
+        // Salva i dati degli elementi della mappa
+document.getElementById('save-map').addEventListener('click', function() {
+    const map = document.getElementById('map-elements');
+    const elements = map.querySelectorAll('.element');
+    const elementData = [];
+
+    elements.forEach(element => {
+        const id = element.id;
+        const left = parseInt(element.style.left) || 0;
+        const top = parseInt(element.style.top) || 0;
+        const width = element.style.width;
+        const height = element.style.height;
+        const dataX = element.dataset.x || 0;
+        const dataY = element.dataset.y || 0;
+        
+        // Estrai il valore di innerHTML
+        const innerHTML = element.innerHTML;  // Assicurati che innerHTML sia definito
+
+        // Estrai i dati dei tavoli (se esistenti)
+        const tableNumber = element.querySelector('.drag-handle')?.getAttribute('data-table-number') || '';
+        const tableSeats = element.querySelector('.drag-handle')?.getAttribute('data-table-seats') || '';
+
+        // Salva i dati in un array
+        elementData.push({ 
+            id, 
+            left, 
+            top, 
+            width, 
+            height, 
+            dataX, 
+            dataY, 
+            tableNumber, 
+            tableSeats,
+            innerHTML  // Aggiungi innerHTML ai dati
+        });
+    });
+
+    const data = { mapElements: elementData };
+
+    // Invio al server per creare la versione statica della mappa
+    $.ajax({
+        url: 'http://127.0.0.1:5000/save_map_static',  // URL per endpoint Flask
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            alert('Mappa salvata con successo!');
+            console.log("Mappa statica salvata:", response);
+        },
+        error: function(xhr, status, error) {
+            console.error("Errore nel salvataggio:", xhr.responseText);
+            alert('Errore durante il salvataggio.');
+        }
+    });
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9;
+}
+
+.header {
+    background-color: #343a40;
+    padding: 20px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    display: inline-block;
+}
+
+.header .edit-title-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.header .edit-title-btn i {
+    color: #343a40;
+}
+
+.carousel-item {
+    height: 600px;
+}
+
+.carousel-item img {
+    height: 100%;
+    object-fit: cover;
+}
+
+.carousel-caption-bg {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.text-gold {
+    color: #FFD700;
+}
+
+.section {
+    position: relative;
+    padding: 50px 0;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section h2,
+.section p {
+    margin: 0;
+    color: #343a40;
+}
+
+.section .edit-section-btn,
+.section .delete-section-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.section .delete-section-btn {
+    right: 50px;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: #fff;
+}
+
+.section .edit-section-btn i,
+.section .delete-section-btn i {
+    color: #343a40;
+}
+
+.carousel-item .delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 0, 0, 0.7);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+    padding: 5px 10px;
+    z-index: 100;
+}
+
+.history-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+/* Flexbox per rendere le colonne della sezione Storia e Recensioni affiancate */
+.history-section {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.history-section .col-md-6 {
+    flex: 0 0 48%;
+    max-width: 48%;
+    box-sizing: border-box;
+}
+
+/* Stili per le testimonianze */
+.testimonial {
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: left;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.testimonial blockquote {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    border-left: none;
+}
+
+.testimonial p {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    color: #343a40;
+}
+
+.testimonial footer {
+    font-size: 0.9rem;
+    color: #343a40;
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+.testimonial .buttons {
+    display: flex;
+    gap: 1em;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.testimonial .edit-review-btn,
+.testimonial .delete-review-btn {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #343a40;
+}
+
+.testimonial .delete-review-btn {
+    background-color: rgba(255, 0, 0, 0.7);
+    color: #fff;
+}
+
+.testimonial .edit-review-btn i,
+.testimonial .delete-review-btn i {
+    color: #343a40;
+}
+
+.why-choose-us {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.why-choose-us h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #343a40;
+}
+
+.why-choose-us p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #343a40;
+}
+
+.why-choose-us ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.why-choose-us ul li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    color: #343a40;
+}
+
+.why-choose-us ul li i {
+    margin-right: 10px;
+    color: #FFD700;
+}
+
+footer {
+    background-color: #343a40;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+    margin-top: 50px;
+}
+
+footer p {
+    margin: 0;
+}
+
+.footer-edit-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #343a40;
+}
+
+.footer-edit-btn i {
+    color: #343a40;
+}
